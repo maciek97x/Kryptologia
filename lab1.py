@@ -5,13 +5,13 @@ def open_file(filename):
     Opens file and returns its content.
 
     Parameters:
-        filename - file name as string
+        filename (string) - name of a file
     
     Returns:
-        file conctent as string
+        (string) file content
 
     Raises:
-        TypeError when filename is not a string
+        TypeError: filename is not a string
     """
     if type(filename) != str:
         raise TypeError
