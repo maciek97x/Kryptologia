@@ -93,7 +93,7 @@ def encrypt_viganere(plaintext, key):
     
     return ciphertext
 
-def decrypt_vigenere(plaintext, key):
+def decrypt_viganere(plaintext, key):
     ciphertext = ''
 
     for i in range(len(plaintext)):
