@@ -75,13 +75,7 @@ def clean_acc(plaintext, lower=True):
     """
     if type(plaintext) != str:
         raise TypeError
-    '''
-    plaintext = plaintext.lower()
-    sub_arr = [['ą', 'a'], ['ć', 'c'], ['ę', 'e'], ['ł', 'l'], ['ń', 'n'], ['ó', 'o'], ['ś', 's'], ['ż', 'z'], ['ź', 'z']]
-    for p, s in sub_arr:
-        plaintext = re.sub(p, s, plaintext)
-    return plaintext
-    '''
+
     if lower:
         plaintext = plaintext.lower()
 
@@ -111,13 +105,10 @@ def col_text(plaintext):
 
 def write_to_file(plaintext, filename):
     """
-    Gets file name.
-    Saves processed text to file.
-
+    Saves processed text to chosen file.
     Parameters:
         plaintext (string) - file content
         filename (string) - name of a file
-
     Raises:
         TypeError: filename/plaintext is not a string
     """
@@ -135,7 +126,12 @@ def encrypt_atbasz(plaintext, *args, **kwargs):
         plaintext (string) - file content
     Returns:
         ciphered text (string)
+    Raises:
+        TypeError: plaintext is not a string
     """
+    if type(plaintext) != str:
+        raise TypeError
+
     ciphertext = ''
 
     for a in plaintext:
@@ -153,7 +149,12 @@ def encrypt_rot13(plaintext, *args, **kwargs):
         plaintext (string) - file content
     Returns:
         ciphered text (string)
+    Raises:
+        TypeError: plaintext is not a string
     """
+    if type(plaintext) != str:
+        raise TypeError
+
     ciphertext = ''
 
     for a in plaintext:
@@ -171,7 +172,12 @@ def encrypt_cesar(plaintext, *args, **kwargs):
         plaintext (string) - file content
     Returns:
         ciphered text (string)
+    Raises:
+        TypeError: plaintext is not a string
     """
+    if type(plaintext) != str:
+        raise TypeError
+
     ciphertext = ''
 
     for a in plaintext:
@@ -181,12 +187,17 @@ def encrypt_cesar(plaintext, *args, **kwargs):
 
 def decrypt_cesar(ciphertext, *args, **kwargs):
     """
-    Decrypts plaintext using cesar algorithm.
+    Decrypts ciphertext using cesar algorithm.
     Parameters:
-        plaintext (string) - file content
+        ciphertext (string) - file content
     Returns:
-        ciphered text (string)
+        decrpted text (string)
+    Raises:
+        TypeError: ciphertext is not a string
     """
+    if type(ciphertext) != str:
+        raise TypeError
+
     plaintext = ''
 
     for a in ciphertext:
@@ -202,7 +213,12 @@ def encrypt_gaderypoluki(plaintext, *args, **kwargs):
         plaintext (string) - file content
     Returns:
         ciphered text (string)
+    Raises:
+        TypeError: plaintext is not a string
     """
+    if type(plaintext) != str:
+        raise TypeError
+
     ciphertext = ''
     pairs = ('ga', 'de', 'ry', 'po', 'lu', 'ki')
 
@@ -227,7 +243,12 @@ def encrypt_permutation(plaintext, perm, *args, **kwargs):
         perm (string) - permutation string
     Returns:
         ciphered text (string)
+    Raises:
+        TypeError: plaintext is not a string
     """
+    if type(plaintext) != str:
+        raise TypeError
+
     ciphertext = ''
 
     for a in plaintext:
@@ -243,7 +264,12 @@ def decrypt_permutation(ciphertext, perm, *args, **kwargs):
         perm (string) - permutation string
     Returns:
         ciphered text (string)
+    Raises:
+        TypeError: ciphertext is not a string
     """
+    if type(ciphertext) != str:
+        raise TypeError
+
     plaintext = ''
 
     # obliczanie permutacji odwrotnej
@@ -264,7 +290,12 @@ def encrypt_viganere(plaintext, key, *args, **kwargs):
         key (string) - cipher key
     Returns:
         ciphered text (string)
+    Raises:
+        TypeError: plaintext is not a string
     """
+    if type(plaintext) != str:
+        return TypeError
+
     ciphertext = ''
 
     for i in range(len(plaintext)):
@@ -280,7 +311,12 @@ def decrypt_viganere(plaintext, key, *args, **kwargs):
         key (string) - cipher key
     Returns:
         ciphered text (string)
+    Raises:
+        TypeError: plaintext is not a string
     """
+    if type(plaintext) != str:
+        raise TypeError
+
     ciphertext = ''
 
     for i in range(len(plaintext)):
@@ -295,7 +331,15 @@ def keygen(output_file, length):
     Parameters:
         output_file (string) - name of a file
         length (int) - cipher key length
+    Raises:
+        TypeError: output_file is not a string or length is not a int
+        ValueError: length is not positive
     """
+    if type(output_file) != str or type(length) != int:
+        raise TypeError
+    if length <= 0:
+        raise ValueError
+
     with open(output_file, 'w') as file:
         for _ in range(length):
             file.write(choice(ascii_lowercase))
@@ -306,12 +350,18 @@ def permgen(output_file):
     Generates and saves to file random cipher key for permutation algorithm.
     Parameters:
         output_file (string) - name of a file
+    Raises:
+        TypeError: output_file is not a string
     """
+    if type(output_file) != str:
+        raise TypeError
+
     with open(output_file, 'w') as file:
         p = list(ascii_lowercase)
         shuffle(p)
         file.write(''.join(p))
 
+# zmienne globalne
 input_file = None
 output_file = None
 key_file = None
@@ -332,6 +382,7 @@ key_required = ('encrypt_viganere', 'decrypt_viganere',
 
 easy_mode = False
 
+# odczytywanie argumentów
 i = 0
 while i < len(sys.argv):
     if sys.argv[i] in ('-f', '--file') and i + 1 < len(sys.argv):
@@ -372,6 +423,7 @@ elif sys.argv[1] in ('-h', '--help'):
 elif sys.argv[1] == '--easy_mode':
     easy_mode = True
 
+# generowanie kluczy
 if generate_key:
     keygen(output_file, key_length)
     sys.exit()
@@ -380,6 +432,9 @@ if generate_perm:
     permgen(output_file)
     sys.exit()
 
+# główna część programu
+
+# wczytywanie pliku
 input_file_loaded = False
 easy_mode_b = easy_mode
 while not input_file_loaded:
@@ -404,6 +459,7 @@ while not input_file_loaded:
         if 'exit' == input_file.lower():
             sys.exit()
 
+# szyfrowanie
 print(f'Szyfrowanie... ')
 
 mode_selected = False
@@ -428,6 +484,7 @@ while not mode_selected:
         if 'exit' == mode.lower():
             sys.exit()
 
+# w razie potrzeby wcztanie klucza
 key = None
 if mode in key_required:
     key_file_loaded = False
@@ -438,6 +495,13 @@ if mode in key_required:
                 raise Exception
             print(f'Otwieranie pliku z kluczem {key_file}... ', end='')
             key = open_file(key_file)
+
+            # sprawdzenie poprawności permutacji
+            if 'permutation' in mode:
+                if len(key) != 26 or\
+                   ''.join(sorted(list(key))) != ascii_lowercase:
+                    print('błędna permutacja... ', end='')
+                    raise Exception
             print('gotowe')
             key_file_loaded = True
         except:
@@ -454,6 +518,7 @@ if mode in key_required:
             if 'exit' == key_file.lower():
                 sys.exit()
 
+# oczyszczenie tekstu
 print('Usuwanie białych znaków... ', end='')
 plaintext = clean_text(plaintext, False)
 print('gotowe')
@@ -464,12 +529,14 @@ print('Zamiana znaków diakrytycznych... ', end='')
 plaintext = clean_acc(plaintext, True)
 print('gotowe')
 
+# właściwe szyfrowanie
 print('Właściwe szyfrowanie... ', end='')
 ciphertext = locals()[mode](plaintext, key)
 print('gotowe')
 
 print('Zaszyfrowano')
 
+# zapis do pliku
 output_file_opened = False
 easy_mode_b = easy_mode
 while not output_file_opened:
