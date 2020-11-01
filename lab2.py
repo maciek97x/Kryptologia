@@ -269,7 +269,7 @@ while not input_file_loaded:
             print('wystąpił błąd')
         else:
             print()
-        if '.' not in input_file:
+        if input_file is not None and '.' not in input_file:
             input_file += '.txt'
             continue
         easy_mode_b = False
@@ -319,7 +319,7 @@ if mode in key_required:
                 print('wystąpił błąd')
             else:
                 print()
-            if '.' not in key_file:
+            if key_file is not None and '.' not in key_file:
                 key_file += '.txt'
                 continue
             easy_mode_b = False
@@ -344,15 +344,14 @@ print('gotowe')
 
 print('Zaszyfrowano')
 
-if '.' not in output_file:
-    output_file += '.txt'
-
 output_file_opened = False
 easy_mode_b = easy_mode
 while not output_file_opened:
     try:
         if easy_mode and easy_mode_b:
             raise Exception
+        if output_file is not None and '.' not in output_file:
+            output_file += '.txt'
         print(f'Zapis wyniku do pliku {output_file}... ', end='')
         write_to_file(ciphertext, output_file)
         print('gotowe')
