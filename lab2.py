@@ -9,13 +9,10 @@ from string import ascii_lowercase
 def open_file(filename):
     """
     Opens file and returns its content.
-
     Parameters:
         filename (string) - name of a file
-
     Returns:
         (string) file content
-
     Raises:
         TypeError: filename is not a string
     """
@@ -28,6 +25,17 @@ def open_file(filename):
     return content
 
 def clean_text(plaintext, keep_spaces=False):
+    """
+    Clears whitespace from file content.
+    Parameters:
+        plaintext (string) - file content
+	    keep_spaces (bool) - if whitespace are kept
+    Returns:
+        prodessed plaintext (string)
+    Raises:
+         TypeError: filename is not a string
+    """
+
     if type(plaintext) != str:
         raise TypeError
 
@@ -39,12 +47,32 @@ def clean_text(plaintext, keep_spaces=False):
     return re.sub(pattern, '', plaintext)
 
 def clean_num(plaintext):
+    """
+    Clears numbers from file content
+    Parameters:
+         plaintext (string) - file content
+    Returns:
+         prodessed plaintext (string)
+    Raises:
+        TypeError: filename is not a string
+    """
     if type(plaintext) != str:
         raise TypeError
 
     return re.sub(r'[0-9]+', '', plaintext)
 
 def clean_acc(plaintext, lower=True):
+    """
+    Changes uppercase letters to lowercase letters in file content.
+    Clears diacritics from file content.
+    Parameters:
+         plaintext (string) - file content
+	     lower (bool) - if uppercase letters are kept
+    Returns:
+         prodessed plaintext (string)
+    Raises:
+         TypeError: filename is not a string
+    """
     if type(plaintext) != str:
         raise TypeError
     '''
@@ -60,6 +88,15 @@ def clean_acc(plaintext, lower=True):
     return ud.unidecode(plaintext)
 
 def col_text(plaintext):
+    """
+    Puts file content gruped by 5 characters into 7 collumns.
+    Parameters:
+        plaintext (string) - file content
+    Returns:
+        text in collumns
+    Raises:
+        TypeError: plaintext is not a string
+    """
     if type(plaintext) != str:
         raise TypeError
 
@@ -73,13 +110,32 @@ def col_text(plaintext):
     return '\n'.join(lines)
 
 def write_to_file(plaintext, filename):
+    """
+    Gets file name.
+    Saves processed text to file.
+
+    Parameters:
+        plaintext (string) - file content
+        filename (string) - name of a file
+
+    Raises:
+        TypeError: filename/plaintext is not a string
+    """
     if type(plaintext) != str or type(filename) != str:
         raise TypeError
 
     with open(filename, 'w') as f:
         f.write(plaintext)
+
 # ================ atbasz
 def encrypt_atbasz(plaintext, *args, **kwargs):
+    """
+    Encrypts plaintext using atbash algorithm.
+    Parameters:
+        plaintext (string) - file content
+    Returns:
+        ciphered text (string)
+    """
     ciphertext = ''
 
     for a in plaintext:
@@ -91,6 +147,13 @@ decrypt_atbasz = encrypt_atbasz
 
 # ================ rot13
 def encrypt_rot13(plaintext, *args, **kwargs):
+    """
+    Encrypts plaintext using rot13 algorithm.
+    Parameters:
+        plaintext (string) - file content
+    Returns:
+        ciphered text (string)
+    """
     ciphertext = ''
 
     for a in plaintext:
@@ -102,6 +165,13 @@ decrypt_rot13 = encrypt_rot13
 
 # ================ cesar
 def encrypt_cesar(plaintext, *args, **kwargs):
+    """
+    Encrypts plaintext using cesar algorithm.
+    Parameters:
+        plaintext (string) - file content
+    Returns:
+        ciphered text (string)
+    """
     ciphertext = ''
 
     for a in plaintext:
@@ -110,6 +180,13 @@ def encrypt_cesar(plaintext, *args, **kwargs):
     return ciphertext
 
 def decrypt_cesar(ciphertext, *args, **kwargs):
+    """
+    Decrypts plaintext using cesar algorithm.
+    Parameters:
+        plaintext (string) - file content
+    Returns:
+        ciphered text (string)
+    """
     plaintext = ''
 
     for a in ciphertext:
@@ -119,8 +196,14 @@ def decrypt_cesar(ciphertext, *args, **kwargs):
 
 # ================ gaderypoluki
 def encrypt_gaderypoluki(plaintext, *args, **kwargs):
+    """
+    Encrypts plaintext using gaderypoluki algorithm.
+    Parameters:
+        plaintext (string) - file content
+    Returns:
+        ciphered text (string)
+    """
     ciphertext = ''
-
     pairs = ('ga', 'de', 'ry', 'po', 'lu', 'ki')
 
     for a in plaintext:
@@ -137,6 +220,14 @@ decrypt_gaderypoluki = encrypt_gaderypoluki
 
 # ================ permutation
 def encrypt_permutation(plaintext, perm, *args, **kwargs):
+    """
+    Encrypts plaintext using permutation algorithm.
+    Parameters:
+        plaintext (string) - file content
+        perm (string) - permutation string
+    Returns:
+        ciphered text (string)
+    """
     ciphertext = ''
 
     for a in plaintext:
@@ -145,6 +236,14 @@ def encrypt_permutation(plaintext, perm, *args, **kwargs):
     return ciphertext
 
 def decrypt_permutation(ciphertext, perm, *args, **kwargs):
+    """
+    Decrypts plaintext using permutation algorithm.
+    Parameters:
+        plaintext (string) - file content
+        perm (string) - permutation string
+    Returns:
+        ciphered text (string)
+    """
     plaintext = ''
 
     # obliczanie permutacji odwrotnej
@@ -158,6 +257,14 @@ def decrypt_permutation(ciphertext, perm, *args, **kwargs):
 
 # ================ viganere
 def encrypt_viganere(plaintext, key, *args, **kwargs):
+    """
+    Encrypts plaintext using viganere algorithm.
+    Parameters:
+        plaintext (string) - file content
+        key (string) - cipher key
+    Returns:
+        ciphered text (string)
+    """
     ciphertext = ''
 
     for i in range(len(plaintext)):
@@ -166,6 +273,14 @@ def encrypt_viganere(plaintext, key, *args, **kwargs):
     return ciphertext
 
 def decrypt_viganere(plaintext, key, *args, **kwargs):
+    """
+    Decrypts plaintext using viganere algorithm.
+    Parameters:
+        plaintext (string) - file content
+        key (string) - cipher key
+    Returns:
+        ciphered text (string)
+    """
     ciphertext = ''
 
     for i in range(len(plaintext)):
@@ -175,12 +290,23 @@ def decrypt_viganere(plaintext, key, *args, **kwargs):
 
 # ================ keygen
 def keygen(output_file, length):
+    """
+    Generates and saves to file random cipher key of given length
+    Parameters:
+        output_file (string) - name of a file
+        length (int) - cipher key length
+    """
     with open(output_file, 'w') as file:
         for _ in range(length):
             file.write(choice(ascii_lowercase))
 
 # ================ permgen
 def permgen(output_file):
+    """
+    Generates and saves to file random cipher key for permutation algorithm.
+    Parameters:
+        output_file (string) - name of a file
+    """
     with open(output_file, 'w') as file:
         p = list(ascii_lowercase)
         shuffle(p)
