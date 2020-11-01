@@ -5,13 +5,15 @@ Użycie:
 Opis:
 
 Parametry:
-  -f, --file - plik, z którego zostanie wczytany szyfroway tekst
-  -o, --output
-  -m, --mode
-  -k, --key_file
-  -h, --help
+  -f --file - plik, z którego zostanie wczytany szyfroway tekst
+  -o --output
+  -m --mode
+  -k --key_file
+  -h --help
   --easy_mode
   --keygen
+  -l --key_length
+  --permgen
 
 Autorzy:
   Katarzyna Wojewoda

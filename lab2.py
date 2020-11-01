@@ -3,7 +3,7 @@
 import re
 import sys
 import unidecode as ud
-from random import choice
+from random import choice, shuffle
 from string import ascii_lowercase
 
 def open_file(filename):
@@ -135,6 +135,27 @@ def encrypt_gaderypoluki(plaintext, *args, **kwargs):
 
 decrypt_gaderypoluki = encrypt_gaderypoluki
 
+# ================ permutation
+def encrypt_permutation(plaintext, perm, *args, **kwargs):
+    ciphertext = ''
+
+    for a in plaintext:
+        ciphertext += perm[ord(a) - ord('a')]
+
+    return ciphertext
+
+def decrypt_permutation(ciphertext, perm, *args, **kwargs):
+    plaintext = ''
+
+    # obliczanie permutacji odwrotnej
+    q = list(zip(*sorted(list(zip(list(perm), list(ascii_lowercase))))))
+    inv_perm = ''.join(q[1])
+
+    for a in ciphertext:
+        plaintext += inv_perm[ord(a) - ord('a')]
+
+    return plaintext
+
 # ================ viganere
 def encrypt_viganere(plaintext, key, *args, **kwargs):
     ciphertext = ''
@@ -153,24 +174,60 @@ def decrypt_viganere(plaintext, key, *args, **kwargs):
     return ciphertext
 
 # ================ keygen
-def keygen(output_file):
+def keygen(output_file, length):
     with open(output_file, 'w') as file:
-        for _ in range(26):
+        for _ in range(length):
             file.write(choice(ascii_lowercase))
+
+# ================ permgen
+def permgen(output_file):
+    with open(output_file, 'w') as file:
+        p = list(ascii_lowercase)
+        shuffle(p)
+        file.write(''.join(p))
 
 input_file = None
 output_file = None
 key_file = None
 mode = None
+key_length = 26
+generate_key = False
+generate_perm = False
 
 available_mode = ('encrypt_atbasz', 'decrypt_atbasz',
                   'encrypt_viganere', 'decrypt_viganere',
                   'encrypt_rot13', 'decrypt_rot13',
                   'encrypt_cesar', 'decrypt_cesar',
+                  'encrypt_permutation', 'decrypt_permutation',
                   'encrypt_gaderypoluki', 'decrypt_gaderypoluki')
-key_required = ('encrypt_viganere', 'decrypt_viganere')
+
+key_required = ('encrypt_viganere', 'decrypt_viganere',
+                'encrypt_permutation', 'decrypt_permutation')
 
 easy_mode = False
+
+i = 0
+while i < len(sys.argv):
+    if sys.argv[i] in ('-f', '--file') and i + 1 < len(sys.argv):
+        input_file = sys.argv[i+1]
+        i += 1
+    if sys.argv[i] in ('-o', '--output') and i + 1 < len(sys.argv):
+        output_file = sys.argv[i+1]
+        i += 1
+    if sys.argv[i] in ('-k', '--key_file') and i + 1 < len(sys.argv):
+        key_file = sys.argv[i+1]
+        i += 1
+    if sys.argv[i] in ('-m', '--mode') and i + 1 < len(sys.argv):
+        mode = sys.argv[i+1]
+        i += 1
+    if sys.argv[i] in ('-l', '--key_length') and i + 1 < len(sys.argv):
+        key_length = int(sys.argv[i+1])
+        i += 1
+    if sys.argv[i] == '--keygen':
+        generate_key = True
+    if sys.argv[i] == '--permgen':
+        generate_perm = True
+    i += 1
 
 if len(sys.argv) < 2:
     print('Użycie:')
@@ -189,25 +246,13 @@ elif sys.argv[1] in ('-h', '--help'):
 elif sys.argv[1] == '--easy_mode':
     easy_mode = True
 
-elif len(sys.argv) > 2 and sys.argv[1] == '--keygen':
-    keygen(sys.argv[2])
+if generate_key:
+    keygen(output_file, key_length)
     sys.exit()
 
-i = 0
-while i < len(sys.argv):
-    if sys.argv[i] in ('-f', '--file') and i + 1 < len(sys.argv):
-        input_file = sys.argv[i+1]
-        i += 1
-    if sys.argv[i] in ('-o', '--output') and i + 1 < len(sys.argv):
-        output_file = sys.argv[i+1]
-        i += 1
-    if sys.argv[i] in ('-k', '--key_file') and i + 1 < len(sys.argv):
-        key_file = sys.argv[i+1]
-        i += 1
-    if sys.argv[i] in ('-m', '--mode') and i + 1 < len(sys.argv):
-        mode = sys.argv[i+1]
-        i += 1
-    i += 1
+if generate_perm:
+    permgen(output_file)
+    sys.exit()
 
 input_file_loaded = False
 easy_mode_b = easy_mode
