@@ -31,10 +31,11 @@
                     przez użytkownika
 
 4.	Użycie:
-  ./lab2.py -f <plik wejściowy> -o <plik wyjściowy>
+  [python3] ./lab2.py -f <plik wejściowy> -o <plik wyjściowy>
     --mode <tryb (de)szyfrowania> [--key_file <plik z kluczem>]
-  ./lab2.py --easy_mode
-  ./lab2.py --keygen -o <plik wyjściowy>
+  [python3] ./lab2.py --easy_mode
+  [python3] ./lab2.py --keygen -o <plik wyjściowy>
+  
 
   •	Do uruchomienia potrzebne są dodatkowe biblioteki:
     a.	re        - Regular expression operations
