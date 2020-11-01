@@ -210,7 +210,7 @@ while i < len(sys.argv):
     i += 1
 
 input_file_loaded = False
-easy_mode_b = True
+easy_mode_b = easy_mode
 while not input_file_loaded:
     try:
         if easy_mode and easy_mode_b:
@@ -222,6 +222,11 @@ while not input_file_loaded:
     except:
         if not easy_mode_b:
             print('wystąpił błąd')
+        else:
+            print()
+        if '.' not in input_file:
+            input_file += '.txt'
+            continue
         easy_mode_b = False
         print('Podaj nazwę pliku wejściowego (exit aby wyjść)')
         input_file = input()
@@ -231,7 +236,7 @@ while not input_file_loaded:
 print(f'Szyfrowanie... ')
 
 mode_selected = False
-easy_mode_b = True
+easy_mode_b = easy_mode
 while not mode_selected:
     try:
         if easy_mode and easy_mode_b:
@@ -243,6 +248,8 @@ while not mode_selected:
         if not easy_mode_b:
             print('Błąd. Wybrany tryb nie jest dostępny')
             print(f'Wybrany tryb: {mode}.')
+        else:
+            print()
         easy_mode_b = False
         print(f'Dostępne tryby: {available_mode}')
         print('Wybierz poprawny tryb (exit aby wyjść)')
@@ -253,7 +260,7 @@ while not mode_selected:
 key = None
 if mode in key_required:
     key_file_loaded = False
-    easy_mode_b = True
+    easy_mode_b = easy_mode
     while not key_file_loaded:
         try:
             if easy_mode and easy_mode_b:
@@ -265,6 +272,11 @@ if mode in key_required:
         except:
             if not easy_mode_b:
                 print('wystąpił błąd')
+            else:
+                print()
+            if '.' not in key_file:
+                key_file += '.txt'
+                continue
             easy_mode_b = False
             print('Podaj nazwę pliku z kluczem (exit aby wyjść)')
             key_file = input()
@@ -287,8 +299,11 @@ print('gotowe')
 
 print('Zaszyfrowano')
 
+if '.' not in output_file:
+    output_file += '.txt'
+
 output_file_opened = False
-easy_mode_b = True
+easy_mode_b = easy_mode
 while not output_file_opened:
     try:
         if easy_mode and easy_mode_b:
@@ -300,6 +315,8 @@ while not output_file_opened:
     except:
         if not easy_mode_b:
             print('wystąpił błąd')
+        else:
+            print()
         easy_mode_b = False
         print('Podaj nazwę pliku wyjściowego (exit aby wyjść)')
         output_file = input()
