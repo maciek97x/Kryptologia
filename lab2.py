@@ -3,6 +3,8 @@
 import re
 import sys
 import unidecode as ud
+from random import choice
+from string import ascii_lowercase
 
 def open_file(filename):
     """
@@ -150,6 +152,12 @@ def decrypt_viganere(plaintext, key, *args, **kwargs):
 
     return ciphertext
 
+# ================ keygen
+def keygen(output_file):
+    with open(output_file, 'w') as file:
+        for _ in range(26):
+            file.write(choice(ascii_lowercase))
+
 input_file = None
 output_file = None
 key_file = None
@@ -181,6 +189,10 @@ elif sys.argv[1] in ('-h', '--help'):
 elif sys.argv[1] == '--easy_mode':
     easy_mode = True
 
+elif len(sys.argv) > 2 and sys.argv[1] == '--keygen':
+    keygen(sys.argv[2])
+    sys.exit()
+
 i = 0
 while i < len(sys.argv):
     if sys.argv[i] in ('-f', '--file') and i + 1 < len(sys.argv):
@@ -190,7 +202,7 @@ while i < len(sys.argv):
         output_file = sys.argv[i+1]
         i += 1
     if sys.argv[i] in ('-k', '--key_file') and i + 1 < len(sys.argv):
-        key = sys.argv[i+1]
+        key_file = sys.argv[i+1]
         i += 1
     if sys.argv[i] in ('-m', '--mode') and i + 1 < len(sys.argv):
         mode = sys.argv[i+1]

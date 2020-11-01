@@ -3,7 +3,7 @@ Użycie:
   ./lab2.py --easy_mode
 
 Opis:
-  
+
 Parametry:
   -f, --file - plik, z którego zostanie wczytany szyfroway tekst
   -o, --output
@@ -11,6 +11,7 @@ Parametry:
   -k, --key_file
   -h, --help
   --easy_mode
+  --keygen
 
 Autorzy:
   Katarzyna Wojewoda
