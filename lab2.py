@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import re
 import sys
 import unidecode as ud
@@ -8,7 +10,7 @@ def open_file(filename):
 
     Parameters:
         filename (string) - name of a file
-    
+
     Returns:
         (string) file content
 
@@ -20,7 +22,7 @@ def open_file(filename):
 
     with open(filename, 'r') as f:
         content = f.read()
-    
+
     return content
 
 def clean_text(plaintext, keep_spaces=False):
@@ -58,7 +60,7 @@ def clean_acc(plaintext, lower=True):
 def col_text(plaintext):
     if type(plaintext) != str:
         raise TypeError
-    
+
     line_num = 0
     lines = []
     while line_num*35 < len(plaintext):
@@ -75,7 +77,7 @@ def write_to_file(plaintext, filename):
     with open(filename, 'w') as f:
         f.write(plaintext)
 
-def encrypt_atbasz(plaintext):
+def encrypt_atbasz(plaintext, *args, **kwargs):
     ciphertext = ''
 
     for a in plaintext:
@@ -85,28 +87,40 @@ def encrypt_atbasz(plaintext):
 
 decrypt_atbasz = encrypt_atbasz
 
-def encrypt_viganere(plaintext, key):
+def encrypt_viganere(plaintext, key, *args, **kwargs):
     ciphertext = ''
 
     for i in range(len(plaintext)):
         ciphertext += chr(((ord(plaintext[i]) - ord('a')) + (ord(key[i%len(key)]) - ord('a')))%26 + ord('a'))
-    
+
     return ciphertext
 
-def decrypt_viganere(plaintext, key):
+def decrypt_viganere(plaintext, key, *args, **kwargs):
     ciphertext = ''
 
     for i in range(len(plaintext)):
         ciphertext += chr(((ord(plaintext[i]) - ord('a')) - (ord(key[i%len(key)]) - ord('a')))%26 + ord('a'))
-    
+
     return ciphertext
 
 input_file = None
 output_file = None
-key = None
+key_file = None
 mode = None
 
-available_modes = ('encrypt_atbasz', 'decrypt_atbasz', 'encrypt_viganere', 'decrypt_viganere')
+available_mode = ('encrypt_atbasz', 'decrypt_atbasz', 'encrypt_viganere', 'decrypt_viganere')
+key_required = ('encrypt_viganere', 'decrypt_viganere')
+
+if len(sys.argv) < 2:
+    print('Użycie: ./lab2.py -f <plik wejściowy> -o <plik wyjściowy> --mode <tryb (de)szyfrowania> [--key_file <plik z kluczem>]')
+    print('Wpisz ./lab2.py -h aby uzyskać więcej informacji')
+
+elif sys.argv[1] in ('-h', '--help'):
+    try:
+        print(open('lab2_manual.txt').read())
+    except:
+        print('Brak pliku z manualem')
+    sys.exit()
 
 i = 0
 while i < len(sys.argv):
@@ -116,7 +130,7 @@ while i < len(sys.argv):
     if sys.argv[i] == '-o' and i + 1 < len(sys.argv):
         output_file = sys.argv[i+1]
         i += 1
-    if sys.argv[i] == '--key' and i + 1 < len(sys.argv):
+    if sys.argv[i] == '--key_file' and i + 1 < len(sys.argv):
         key = sys.argv[i+1]
         i += 1
     if sys.argv[i] == '--mode' and i + 1 < len(sys.argv):
@@ -124,46 +138,69 @@ while i < len(sys.argv):
         i += 1
     i += 1
 
-done = False
-while not done:
+input_file_loaded = False
+while not input_file_loaded:
     try:
         print(f'Otwieranie pliku {input_file}... ', end='')
         plaintext = open_file(input_file)
         print('gotowe')
+        input_file_loaded = True
+    except:
+        print('wystąpił błąd')
+        print('Podaj nazwę pliku jeszcze raz')
+        input_file = input()
+        if 'exit' == input_file.lower():
+            sys.exit()
 
+mode_selected = False
+while mode_selected:
+    try:
         print(f'Szyfrowanie ... ', end='')
-        if mode not in available_modes:
-            print(f'Błąd. Wybrany tryb nie jest dostępny.\nDostępne tryby: {available_modes}.\nWybrany tryb: {mode}.')
+        if mode not in available_mode:
             raise ValueError
-        plaintext = clean_text(plaintext, False)
-        plaintext = clean_num(plaintext)
-        plaintext = clean_acc(plaintext, True)
-        if mode in  ('encrypt_atbasz', 'decrypt_atbasz'):
-            ciphertext = locals()[mode](plaintext)
-        elif mode in ('encrypt_viganere', 'decrypt_viganere'):
-            if key is None:
-                print('Brak klucza.')
-                raise ValueError
-            ciphertext = locals()[mode](plaintext, key)
-        print('gotowe')
+    except:
+        print('Błąd. Wybrany tryb nie jest dostępny')
+        print(f'Dostępne tryby: {available_mode}')
+        print(f'Wybrany tryb: {mode}.')
+        print('Wybierz poprawny tryb')
+        mode = input()
+        if 'exit' == mode.lower():
+            sys.exit()
 
+key = None
+if mode in key_required:
+    key_file_loaded = False
+    while not key_file_loaded:
+        try:
+            print(f'Otwieranie pliku z kluczem {key_file}... ', end='')
+            key = open_file(key_file)
+            print('gotowe')
+            key_file_loaded = True
+        except:
+            print('wystąpił błąd')
+            print('Podaj nazwę pliku jeszcze raz')
+            key_file = input()
+            if 'exit' == key_file.lower():
+                sys.exit()
+
+plaintext = clean_text(plaintext, False)
+plaintext = clean_num(plaintext)
+plaintext = clean_acc(plaintext, True)
+
+ciphertext = locals()[mode](plaintext, key)
+
+print('Zaszyfrowano')
+
+output_file_opened = False
+while not output_file_opened:
+    try:
         print(f'Zapis wyniku do pliku {output_file}... ', end='')
         write_to_file(ciphertext, output_file)
         print('gotowe')
-
-        done = True
+        output_file_opened = True
     except:
-        print('Wystąpił błąd. Podaj opcje jeszcze raz. Wpisane "exit" powoduje wyjście z programu')
-        input_file = input('Plik wejściowy: ')
-        if 'exit' == input_file.lower():
-            sys.exit()
-        output_file = input('Plik wyjściowy: ')
+        print('wystąpił błąd.')
+        print('Podaj nazwę pliku jeszcze raz')
+        output_file = input()
         if 'exit' == output_file.lower():
             sys.exit()
-        mode = input(f'Tryb {available_modes}: ')
-        if 'exit' == mode.lower():
-            sys.exit()
-        elif mode in ('encrypt_viganere', 'decrypt_viganere'):
-            key = input('Klucz: ')
-            if 'exit' == key.lower():
-                sys.exit()
