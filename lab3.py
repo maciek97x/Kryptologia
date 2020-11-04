@@ -1,13 +1,18 @@
 from random import randint
 
 class User(object):
-    def __init__(self, p, g):
+    def __init__(self, p, g, a = None):
         self.p = p
         self.g = g
-        self.a = randint(2, p - 1)
+        if a is None:
+            a = randint(2, p - 1)
+        self.a = a
         self.g_to_a = None
         self.g_to_b = None
         self.g_to_ab = None
+
+def rand_gen(p):
+
 
 def potega_m(a, b, p):
     if p == 1:
@@ -45,11 +50,22 @@ def pdh(alice, bob):
     return public_data
 
 def apdh(public_data):
+    # wyciągamy dane dostępne publicznie
     p = public_data['p']
     g = public_data['g']
     g_to_a = public_data['alice_g_to_a']
     g_to_b = public_data['bob_g_to_a']
 
+    a = None
+    b = None
+    for k in range(p - 1):
+        power = potega_m(g, k, p)
+        if power == g_to_a:
+            a = k
+        if power == g_to_b:
+            b = k
+
+    return potega_m(g, a*b, p)
 
 p = 7
 g = 5
@@ -62,3 +78,8 @@ dh = pdh(alice, bob)
 print(f'Klucz Alicji: {alice.g_to_ab}')
 print(f'Klucz Boba: {bob.g_to_ab}')
 print(f'Publicze dane: {dh}')
+
+key = apdh(dh)
+
+print(f'Złamany klucz: {key}')
+
