@@ -4,16 +4,21 @@ class User(object):
     def __init__(self, p, g):
         self.p = p
         self.g = g
-        self.a = randint(1, p)
+        self.a = randint(2, p - 1)
         self.g_to_a = None
         self.g_to_b = None
         self.g_to_ab = None
 
-def potega_m(a, b, m):
+def potega_m(a, b, p):
+    if p == 1:
+        return 0
     result = 1
-    for _ in range(b):
-        result *= a
-        result %= m
+    a = a % p
+    while b > 0:
+        if b & 1:
+            result = (result * a) % p
+        b = b >> 1
+        a = (a * a) % p
     return result
 
 def pdh(alice, bob):
@@ -44,6 +49,7 @@ def apdh(public_data):
     g = public_data['g']
     g_to_a = public_data['alice_g_to_a']
     g_to_b = public_data['bob_g_to_a']
+
 
 p = 7
 g = 5
