@@ -11,9 +11,6 @@ class User(object):
         self.g_to_b = None
         self.g_to_ab = None
 
-def rand_gen(p):
-
-
 def potega_m(a, b, p):
     if p == 1:
         return 0
