@@ -31,8 +31,12 @@ def potega_m(a, b, p):
 def is_generator(p, g):
     powers = []
 
+    print(' ', end='')
     for i in range(p - 1):
+        print('\b' + '-\|/'[(i//1000)%4], end='')
         powers.append(potega_m(g, i, p))
+
+    print('\b', end='')
 
     return len(set(powers)) == p - 1
 
@@ -76,21 +80,28 @@ def time_func(func):
     return time_func
 
 @time_func
-def apdh(public_data):
+def apdh_bruteforce(public_data):
     # wyciągamy dane dostępne publicznie
     p = public_data['p']
     g = public_data['g']
     g_to_a = public_data['g_to_a']
     g_to_b = public_data['g_to_b']
 
+    print('Łamanie klucza...  ', end='')
+
     for k in range(p - 1):
+        print('\b' + '-\|/'[(k//1000)%4], end='')
+
         power = potega_m(g, k, p)
 
         if power == g_to_a:
+            print('\b ')
             return potega_m(g_to_b, k, p)
 
         if power == g_to_b:
+            print('\b ')
             return potega_m(g_to_a, k, p)
+
 
 def read_nums_from_file(num_count, message):
     filename = None
@@ -130,17 +141,21 @@ a = read_nums_from_file(1, 'Podaj plik zawierający tajną liczbę Alicji ' +\
 b = read_nums_from_file(1, 'Podaj plik zawierający tajną liczbę Boba ' +\
                            '(exit aby wyjść)')[0]
 
+print()
+
 alice = User(p, g, a)
 bob = User(p, g, b)
 
 dh = pdh(alice, bob)
 
-print(f'Klucz Alicji: {alice.g_to_xy}')
+print(f'\nKlucz Alicji: {alice.g_to_xy}')
 print(f'Klucz Boba: {bob.g_to_xy}')
-print(f'Publicze dane:')
+
+print(f'\nPubliczne dane:')
 for key, val in dh.items():
     print(f'\t{key} = {val}')
+print()
 
-key, time = apdh(dh)
+key, time = apdh_bruteforce(dh)
 
 print(f'Klucz o wartości {key} został złamany w czasie {time*1000:.3f} ms metodą bruteforce')
