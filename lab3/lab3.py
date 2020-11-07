@@ -102,6 +102,33 @@ def apdh_bruteforce(public_data):
             print('\b ')
             return potega_m(g_to_a, k, p)
 
+@time_func
+def apdh_babystep_giantstep(public_data):
+    # wyciągamy dane dostępne publicznie
+    p = public_data['p']
+    g = public_data['g']
+    g_to_a = public_data['g_to_a']
+    g_to_b = public_data['g_to_b']
+
+    print('Łamanie klucza...  ', end='')
+
+    p_sqrt_round = int(p**.5)
+
+    baby_steps = []
+    for i in range(p_sqrt_round - 1):
+        baby_steps.append(potega_m(g, i, p))
+
+    g_inv = potega_m(g, p - 2, p)
+
+    for i_a in range(p - 1):
+        print('\b' + '-\|/'[(i_a//1000)%4], end='')
+        val = (g_to_a*potega_m(g_inv, i_a*int(p_sqrt_round), p)) % p
+        if val in baby_steps:
+            idx_a = baby_steps.index(val)
+            break
+
+    print('\b ')
+    return potega_m(g_to_b, i_a*p_sqrt_round + idx_a, p)
 
 def read_nums_from_file(num_count, message):
     filename = None
@@ -159,3 +186,7 @@ print()
 key, time = apdh_bruteforce(dh)
 
 print(f'Klucz o wartości {key} został złamany w czasie {time*1000:.3f} ms metodą bruteforce')
+
+key, time = apdh_babystep_giantstep(dh)
+
+print(f'Klucz o wartości {key} został złamany w czasie {time*1000:.3f} ms metodą baby-step giant-step')
