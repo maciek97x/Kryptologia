@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import re
 import sys
+import io
 import unidecode as ud
 from random import choice, shuffle
 from string import ascii_lowercase
@@ -19,7 +20,7 @@ def open_file(filename):
     if type(filename) != str:
         raise TypeError
 
-    with open(filename, 'r') as f:
+    with io.open(filename, mode='r', encoding='utf8') as f:
         content = f.read()
 
     return content
@@ -415,7 +416,7 @@ if len(sys.argv) < 2:
 
 elif sys.argv[1] in ('-h', '--help'):
     try:
-        print(open('lab2_manual.txt').read())
+        print(io.open('lab2_manual.txt', mode='r', encoding='utf8') .read())
     except:
         print('Brak pliku z manualem')
     sys.exit()

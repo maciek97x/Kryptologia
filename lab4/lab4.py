@@ -1,6 +1,7 @@
 from time import perf_counter
+from random import choices
 
-def potega_m(a, b, p):
+def power_mod(a, b, p):
     """
     Calculates a^b(mod p) in a faster way (O(log(n))).
     Parameters:
@@ -24,6 +25,11 @@ def potega_m(a, b, p):
     return result
 
 def euler_gcd(a, b):
+    while b:
+        a, b = b, a%b
+    return a
+
+def euler_egcd(a, b):
     """
     Computes gcd using extended Euler algorithm
     Parameters:
@@ -66,3 +72,31 @@ def time_func(func):
         return ret, finish - start
 
     return time_func
+
+def prime(a, s):
+    sieve = [True]*s
+    primes = []
+
+    sieve[0] = False
+    sieve[1] = False
+
+    i = 0
+    for i in range(s):
+        if sieve[i] == 1:
+            primes.append(i)
+            for j in range(2*i, s, i):
+                sieve[j] = 0
+    
+    return choices(primes, k=2)
+
+def is_prime_1(p):
+    raise NotImplementedError
+
+def is_prime_2(p):
+    raise NotImplementedError
+
+def is_prime_3(p):
+    raise NotImplementedError
+
+
+print(prime(10, 1000))
