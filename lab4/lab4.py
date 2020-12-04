@@ -130,12 +130,12 @@ def is_prime_mr(p, s):
 
     return True
 
-digits = 6
+digits = 7
 
 for _ in range(1):
     p = prime(10**(digits - 1), 10**digits - 1)[0]
     n = randint(10**(digits - 1), 10**digits - 1)
-    s = 10
+    s = 1
 
     print('Test 1...')
     test_1_p, time_1_p = is_prime_naive(p)

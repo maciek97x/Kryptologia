@@ -19,13 +19,42 @@ def potega_m(a, b, p):
     return result
 
 def is_generator(p, g):
+    prime_factors = []
+
+    def gcd(a, b):
+        while b != 0:
+            a, b = b, a % b
+        return a
+
+    def get_factor(n):
+        x_fixed = 2
+        cycle_size = 2
+        x = 2
+        factor = 1
+
+        while factor == 1:
+            for count in range(cycle_size):
+                if factor > 1: break
+                x = (x * x + 1) % n
+                factor = gcd(x - x_fixed, n)
+
+            cycle_size *= 2
+            x_fixed = x
+
+        return factor
+
+    q = p
+    while q > 1:
+        next = get_factor(q)
+        prime_factors.append(next)
+        q //= next
+
     powers = []
 
-    for i in range(p - 1):
-        print('\r[' + '='*int(64*(i + 1)/(p - 1)) + ' '*(64 - int(64*(i + 1)/(p - 1))) + ']', end='')
+    for i in prime_factors:
         powers.append(potega_m(g, i, p))
 
-    return len(set(powers)) == p - 1
+    return 1 not in powers
 
 while True:
     i = randint(2, p - 1)
