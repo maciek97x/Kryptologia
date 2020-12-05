@@ -202,17 +202,156 @@ def encrypt():
 
     print(' SZYFROWANIE '.center(64, '='))
     print()
+    
+    while True:
+        print('  Nazwa pliku (exit aby wrócić do menu): ', end='')
+        filename = input()
+        if filename.lower().strip() == 'exit':
+            return
+        try:
+            plaintext = open(filename, 'r').read()
+            print('    Poprawnie wczytano plik')
+            break
+        except:
+            pass
+        print('    Podaj właściwą nazwę pliku')
 
+    print('  Wczytana wiadomość:')
+    for i in range(min(4, len(plaintext)//32)):
+        print(f'    {plaintext[i*32:min((i+1)*32, len(plaintext))]}')
+    if len(plaintext)//32 > 4:
+        print('    ...')
+
+    print()
+    print('  Wczytywanie pliku z kluczem publicznym...', end='')
+    try:
+        n, e = open('public_key.txt', 'r').read().split()
+        n = int(n)
+        e = int(e)
+        print(' gotowe.')
+    except:
+        print(' wystąpił błąd')
+        print('    Naciśnij enter aby powrócić do menu.', end='')
+        input()
+        return
+
+    print(f'  Uzupełnienie wiadomości, aby jej długość była wielokrotnością {CIPHER_WIDTH}...', end='')
+    while len(plaintext)%CIPHER_WIDTH != 0:
+        plaintext += chr(randint(32, 255))
+    print(' gotowe')
+    
+    ciphertext = bytearray()
+
+    print('  Szyfrowanie...', end='')
+    i = 0
+    while i < len(plaintext):
+        m = 0
+        for j in range(CIPHER_WIDTH):
+            m += ord(plaintext[i+j]) << (8*j)
+        
+        m = power_mod(m, e, n)
+        print(f'{m:0x}')
+        for j in range(CIPHER_WIDTH):
+            ciphertext.append((m & (0xFF << (8*j))) >> (8*j))
+
+        i += CIPHER_WIDTH
+    print(' gotowe')
+    for c in ciphertext:
+        print(f'{c:0x}', end='')
+    print(len(ciphertext))
+
+    print()
+    while True:
+        print('  Nazwa pliku (exit aby wrócić do menu): ', end='')
+        filename = input()
+        if filename.lower().strip() == 'exit':
+            return
+        try:
+            with open(filename, 'wb') as f:
+                f.write(ciphertext)
+            print('    Poprawnie zapisano wynik szyfrowania')
+            break
+        except:
+            pass
+        print('    Podaj właściwą nazwę pliku')
+
+    print()
     print('    Naciśnij enter aby powrócić do menu.', end='')
     input()
-    
 
 def decrypt():
     os.system('cls' if os.name == 'nt' else 'clear')
 
     print(' DESZYFROWANIE '.center(64, '='))
     print()
+    
+    while True:
+        print('  Nazwa pliku (exit aby wrócić do menu): ', end='')
+        filename = input()
+        if filename.lower().strip() == 'exit':
+            return
+        try:
+            ciphertext = open(filename, 'rb').read()
+            print('    Poprawnie wczytano plik')
+            break
+        except:
+            pass
+        print('    Podaj właściwą nazwę pliku')
 
+    print()
+    print('  Wczytywanie pliku z kluczem prywatnym...', end='')
+    try:
+        p, q, d = open('private_key.txt', 'r').read().split()
+        p = int(p)
+        q = int(q)
+        d = int(d)
+        print(' gotowe.')
+    except:
+        print(' wystąpił błąd')
+        print('    Naciśnij enter aby powrócić do menu.', end='')
+        input()
+        return
+    
+    plaintext = ''
+
+    print('  Deszyfrowanie...', end='')
+    i = 0
+    while i < len(ciphertext):
+        m = 0
+        for j in range(CIPHER_WIDTH):
+            m += ciphertext[i+j] << (8*j)
+        
+        m = power_mod(m, d, p*q)
+
+        for j in range(CIPHER_WIDTH):
+            plaintext += chr((m & (0xFF << (8*j))) >> (8*j))
+
+        i += CIPHER_WIDTH
+    print(' gotowe')
+
+    print('  Zdeszyfrowana wiadomość:')
+    for i in range(min(4, len(plaintext)//32)):
+        print(f'    {plaintext[i*32:min((i+1)*32, len(plaintext))]}')
+    if len(plaintext)//32 > 4:
+        print('    ...')
+    print()
+
+    print()
+    while True:
+        print('  Nazwa pliku (exit aby wrócić do menu): ', end='')
+        filename = input()
+        if filename.lower().strip() == 'exit':
+            return
+        try:
+            with open(filename, 'w') as f:
+                f.write(plaintext)
+            print('    Poprawnie zapisano wynik deszyfrowania')
+            break
+        except:
+            pass
+        print('    Podaj właściwą nazwę pliku')
+
+    print()
     print('    Naciśnij enter aby powrócić do menu.', end='')
     input()
 
@@ -222,8 +361,10 @@ def compare_tests():
     print(' PORÓWNANIE TESTÓW '.center(64, '='))
     print()
     while True:
-        print('  Liczba cyfr testowanych liczb: ', end='')
+        print('  Liczba cyfr testowanych liczb (exit aby wrócić do menu): ', end='')
         digits = input()
+        if digits.lower().strip() == 'exit':
+            return
         if digits.isdecimal() and '.' not in digits:
             break
         print('    Podaj liczbę całkowitą')
