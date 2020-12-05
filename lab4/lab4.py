@@ -5,6 +5,7 @@ import os
 from time import perf_counter
 from random import choice, randint
 from getch import getch
+from unidecode import unidecode
 
 # config
 CIPHER_WIDTH = 4
@@ -85,27 +86,18 @@ def time_func(func):
 
     return time_func
 
-def rand_prime(a, s):
-    sieve = [True]*s
-    primes = []
-
-    sieve[0] = False
-    sieve[1] = False
-
-    i = 0
-    for i in range(s):
-        if 1 == sieve[i]:
-            if i >= a:
-                primes.append(i)
-            for j in range(2*i, s, i):
-                sieve[j] = 0
-    
-    return choice(primes)
+def rand_prime(a, b):
+    while True:
+        n = randint(a, b - 1)
+        for p in (2, 3, 5, 7, 11, 13, 17, 19):
+            if n % p == 0:
+                continue
+        if is_prime_mr(n, 100):
+            return n
 
 def progress_bar(a, b):
     return '[' + ('='*int(32*a/b)).ljust(32) + ']'
 
-@time_func
 def is_prime_naive(p, progress=False, prefix=''):
     for i in range(2, int(p**.5)):
         if progress:
@@ -118,7 +110,6 @@ def is_prime_naive(p, progress=False, prefix=''):
         print('\r' + prefix + progress_bar(1, 1))
     return True
 
-@time_func
 def is_prime_fermat(p, s, progress=False, prefix=''):
     for i in range(s):
         if progress:
@@ -132,7 +123,6 @@ def is_prime_fermat(p, s, progress=False, prefix=''):
         print('\r' + prefix + progress_bar(1, 1))
     return True
 
-@time_func
 def is_prime_mr(p, s, progress=False, prefix=''):
     u = 0
     r = p - 1
@@ -184,14 +174,39 @@ def calculate_keys():
     d = mod_inv(e, phi_n)
     print(f'    d = {d}')
 
-    print()
-    with open('public_key.txt', 'w') as f:
-        f.write(f'{n} {e}')
-    print(f'  Zapisano klucz publiczny ({n}, {e}) do pliku public_key.txt')
-
-    with open('private_key.txt', 'w') as f:
-        f.write(f'{p} {q} {d}')
-    print(f'  Zapisano klucz prywatny ({p}, {q}, {d}) do pliku private_key.txt')
+    print('  Zapisywanie klucza publicznego do pliku.')
+    while True:
+        print('  Nazwa pliku (exit - wyjście, default=public_key.txt): ', end='')
+        filename = input()
+        if filename.lower().strip() == 'exit':
+            return
+        try:
+            if filename.strip() == '':
+                filename = 'public_key.txt'
+            with open(filename, 'w') as f:
+                f.write(f'{n} {e}')
+            print(f'  Zapisano klucz publiczny ({n}, {e}) do pliku {filename}.')
+            break
+        except:
+            pass
+        print('    Podaj właściwą nazwę pliku')
+    
+    print('  Zapisywanie klucza prywatnego do pliku.')
+    while True:
+        print('  Nazwa pliku (exit - wyjście, default=private_key.txt): ', end='')
+        filename = input()
+        if filename.lower().strip() == 'exit':
+            return
+        try:
+            if filename.strip() == '':
+                filename = 'private_key.txt'
+            with open(filename, 'w') as f:
+                f.write(f'{p} {q} {d}')
+            print(f'  Zapisano klucz prywatny ({p}, {q}, {d}) do pliku {filename}.')
+            break
+        except:
+            pass
+        print('    Podaj właściwą nazwę pliku')
 
     print()
     print('    Naciśnij enter aby powrócić do menu.', end='')
@@ -204,7 +219,7 @@ def encrypt():
     print()
     
     while True:
-        print('  Nazwa pliku (exit aby wrócić do menu): ', end='')
+        print('  Nazwa pliku (exit - wyjście): ', end='')
         filename = input()
         if filename.lower().strip() == 'exit':
             return
@@ -215,29 +230,43 @@ def encrypt():
         except:
             pass
         print('    Podaj właściwą nazwę pliku')
+    
+    plaintext = unidecode(plaintext)
 
-    print('  Wczytana wiadomość:')
-    for i in range(min(4, len(plaintext)//32)):
-        print(f'    {plaintext[i*32:min((i+1)*32, len(plaintext))]}')
-    if len(plaintext)//32 > 4:
-        print('    ...')
+    print('  Wczytana wiadomość:', end='')
+    for i in range(min(128, len(plaintext))):
+        if i%32 == 0:
+            print('\n    ', end='')
+        print(plaintext[i], end='')
+
+    if len(plaintext) > 128:
+        print('...')
+    else:
+        print()
 
     print()
-    print('  Wczytywanie pliku z kluczem publicznym...', end='')
-    try:
-        n, e = open('public_key.txt', 'r').read().split()
-        n = int(n)
-        e = int(e)
-        print(' gotowe.')
-    except:
-        print(' wystąpił błąd')
-        print('    Naciśnij enter aby powrócić do menu.', end='')
-        input()
-        return
+    print('  Wczytywanie pliku z kluczem publicznym.')
+
+    while True:
+        print('  Nazwa pliku (exit - wyjście, default=public_key.txt): ', end='')
+        filename = input()
+        if filename.lower().strip() == 'exit':
+            return
+        try:
+            if filename.strip() == '':
+                filename = 'public_key.txt'
+            n, e = open(filename, 'r').read().split()
+            n = int(n)
+            e = int(e)
+            print(f'    Poprawnie wczytano klucz publiczny ({n} {e}) z pliku {filename}.')
+            break
+        except:
+            pass
+        print('    Podaj właściwą nazwę pliku')
 
     print(f'  Uzupełnienie wiadomości, aby jej długość była wielokrotnością {CIPHER_WIDTH}...', end='')
     while len(plaintext)%CIPHER_WIDTH != 0:
-        plaintext += chr(randint(32, 255))
+        plaintext += chr(randint(32, 127))
     print(' gotowe')
     
     ciphertext = bytearray()
@@ -248,27 +277,35 @@ def encrypt():
         m = 0
         for j in range(CIPHER_WIDTH):
             m += ord(plaintext[i+j]) << (8*j)
-        
+            
         m = power_mod(m, e, n)
-        print(f'{m:0x}')
-        for j in range(CIPHER_WIDTH):
+        
+        for j in range(CIPHER_WIDTH + 1):
             ciphertext.append((m & (0xFF << (8*j))) >> (8*j))
 
         i += CIPHER_WIDTH
     print(' gotowe')
-    for c in ciphertext:
-        print(f'{c:0x}', end='')
-    print(len(ciphertext))
+
+    print('  Zaszyfrowana wiadomość:', end='')
+    for i in range(min(64, len(ciphertext))):
+        if i%16 == 0:
+            print('\n    ', end='')
+        print(f'{ciphertext[i]:02x}', end='')
+
+    if len(ciphertext) > 64:
+        print('...')
+    else:
+        print()
 
     print()
     while True:
-        print('  Nazwa pliku (exit aby wrócić do menu): ', end='')
+        print('  Nazwa pliku (exit - wyjście): ', end='')
         filename = input()
         if filename.lower().strip() == 'exit':
             return
         try:
             with open(filename, 'wb') as f:
-                f.write(ciphertext)
+                f.write(bytes(ciphertext))
             print('    Poprawnie zapisano wynik szyfrowania')
             break
         except:
@@ -286,31 +323,48 @@ def decrypt():
     print()
     
     while True:
-        print('  Nazwa pliku (exit aby wrócić do menu): ', end='')
+        print('  Nazwa pliku (exit - wyjście): ', end='')
         filename = input()
         if filename.lower().strip() == 'exit':
             return
         try:
-            ciphertext = open(filename, 'rb').read()
+            ciphertext = bytearray(open(filename, 'rb').read())
             print('    Poprawnie wczytano plik')
             break
         except:
             pass
         print('    Podaj właściwą nazwę pliku')
 
+
+    print('  Zaszyfrowana wiadomość:', end='')
+    for i in range(min(64, len(ciphertext))):
+        if i%16 == 0:
+            print('\n    ', end='')
+        print(f'{ciphertext[i]:02x}', end='')
+
+    if len(ciphertext) > 64:
+        print('...')
+    else:
+        print()
+
     print()
-    print('  Wczytywanie pliku z kluczem prywatnym...', end='')
-    try:
-        p, q, d = open('private_key.txt', 'r').read().split()
-        p = int(p)
-        q = int(q)
-        d = int(d)
-        print(' gotowe.')
-    except:
-        print(' wystąpił błąd')
-        print('    Naciśnij enter aby powrócić do menu.', end='')
-        input()
-        return
+    while True:
+        print('  Nazwa pliku (exit - wyjście, default=private_key.txt): ', end='')
+        filename = input()
+        if filename.lower().strip() == 'exit':
+            return
+        try:
+            if filename.strip() == '':
+                filename = 'private_key.txt'
+            p, q, d = open(filename, 'r').read().split()
+            p = int(p)
+            q = int(q)
+            d = int(d)
+            print(f'    Poprawnie wczytano klucz prywatny ({p} {q}, {d}) z pliku {filename}.')
+            break
+        except:
+            pass
+        print('    Podaj właściwą nazwę pliku')
     
     plaintext = ''
 
@@ -318,7 +372,7 @@ def decrypt():
     i = 0
     while i < len(ciphertext):
         m = 0
-        for j in range(CIPHER_WIDTH):
+        for j in range(CIPHER_WIDTH + 1):
             m += ciphertext[i+j] << (8*j)
         
         m = power_mod(m, d, p*q)
@@ -326,19 +380,23 @@ def decrypt():
         for j in range(CIPHER_WIDTH):
             plaintext += chr((m & (0xFF << (8*j))) >> (8*j))
 
-        i += CIPHER_WIDTH
+        i += CIPHER_WIDTH + 1
     print(' gotowe')
 
-    print('  Zdeszyfrowana wiadomość:')
-    for i in range(min(4, len(plaintext)//32)):
-        print(f'    {plaintext[i*32:min((i+1)*32, len(plaintext))]}')
-    if len(plaintext)//32 > 4:
-        print('    ...')
-    print()
+    print('  Zdeszyfrowana wiadomość:', end='')
+    for i in range(min(128, len(plaintext))):
+        if i%32 == 0:
+            print('\n    ', end='')
+        print(plaintext[i], end='')
+
+    if len(plaintext) > 128:
+        print('...')
+    else:
+        print()
 
     print()
     while True:
-        print('  Nazwa pliku (exit aby wrócić do menu): ', end='')
+        print('  Nazwa pliku (exit - wyjście): ', end='')
         filename = input()
         if filename.lower().strip() == 'exit':
             return
@@ -361,7 +419,7 @@ def compare_tests():
     print(' PORÓWNANIE TESTÓW '.center(64, '='))
     print()
     while True:
-        print('  Liczba cyfr testowanych liczb (exit aby wrócić do menu): ', end='')
+        print('  Liczba cyfr testowanych liczb (exit - wyjście): ', end='')
         digits = input()
         if digits.lower().strip() == 'exit':
             return
@@ -370,23 +428,30 @@ def compare_tests():
         print('    Podaj liczbę całkowitą')
 
     digits = int(digits)
-
+    
+    print('    Losowanie liczb.')
     p = rand_prime(10**(digits - 1), 10**digits - 1)
     n = randint(10**(digits - 1), 10**digits - 1)
     n += n%2
     s = 100
+    print(f'    Wylosowane liczby: {p}, {n}')
 
-    print('    Test 1...')
-    test_1_p, time_1_p = is_prime_naive(p, progress=True, prefix=' '*6)
-    test_1_n, time_1_n = is_prime_naive(n, progress=True, prefix=' '*6)
-    
-    print('    Test 2...')
-    test_2_p, time_2_p = is_prime_fermat(p, s, progress=True, prefix=' '*6)
-    test_2_n, time_2_n = is_prime_fermat(n, s, progress=True, prefix=' '*6)
-    
-    print('    Test 3...')
-    test_3_p, time_3_p = is_prime_mr(p, s, progress=True, prefix=' '*6)
-    test_3_n, time_3_n = is_prime_mr(n, s, progress=True, prefix=' '*6)
+    print()
+    print('  Testowanie (ctrl+c - wyjscie).')
+    try:
+        print('    Test 1...')
+        test_1_p, time_1_p = time_func(is_prime_naive)(p, progress=True, prefix=' '*6)
+        test_1_n, time_1_n = time_func(is_prime_naive)(n, progress=True, prefix=' '*6)
+        
+        print('    Test 2...')
+        test_2_p, time_2_p = time_func(is_prime_fermat)(p, s, progress=True, prefix=' '*6)
+        test_2_n, time_2_n = time_func(is_prime_fermat)(n, s, progress=True, prefix=' '*6)
+        
+        print('    Test 3...')
+        test_3_p, time_3_p = time_func(is_prime_mr)(p, s, progress=True, prefix=' '*6)
+        test_3_n, time_3_n = time_func(is_prime_mr)(n, s, progress=True, prefix=' '*6)
+    except:
+        return
 
     print(f'  Liczba pierwsza: {p}')
     print( '    Wynik testów:')
@@ -438,6 +503,7 @@ while True:
     c = None
     opt = 0
     while True:
+        print(flush=True)
         os.system('cls' if os.name == 'nt' else 'clear')
 
         print(' MENU '.center(64, '='))
