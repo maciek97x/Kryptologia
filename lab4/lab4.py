@@ -6,6 +6,13 @@ from time import perf_counter
 from random import choice, randint
 from getch import getch
 
+# config
+CIPHER_WIDTH = 4
+MIN_P = 1 << (8*CIPHER_WIDTH//2)
+MIN_Q = MIN_P
+MAX_P = MIN_P << 2
+MAX_Q = MAX_P
+
 def power_mod(a, b, p):
     """
     Calculates a^b(mod p) in a faster way (O(log(n))).
@@ -46,7 +53,7 @@ def euler_egcd(a, b):
     if a == 0:
         return (b, 0, 1)
     else:
-        g, y, x = euler_gcd(b % a, a)
+        g, y, x = euler_egcd(b % a, a)
         return (g, x - (b // a) * y, y)
 
 def mod_inv(a, p):
@@ -59,7 +66,7 @@ def mod_inv(a, p):
     Returns:
         inverse of a (int)            
     """
-    _, x, _ = euler_gcd(a, p)
+    _, x, _ = euler_egcd(a, p)
     return x % p
 
 def time_func(func):
@@ -152,14 +159,62 @@ def is_prime_mr(p, s, progress=False, prefix=''):
     return True
 
 def calculate_keys():
-    n = 0
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+    print(' OBLICZANIE KLUCZY '.center(64, '='))
+    print()
+    
+    print('  Kolejne obliczenia:')
+    p = rand_prime(MIN_P, MAX_P)
+    print(f'    p = {p}')
+    q = rand_prime(MIN_Q, MAX_Q)
+    print(f'    q = {q}')
+
+    n = p*q
+    print(f'    n = {n}')
+    phi_n = (p - 1)*(q - 1)
+    print(f'    Phi(n) = {phi_n}')
+
+    while True:
+        e = randint(2, phi_n - 1)
+        if euler_gcd(e, phi_n) == 1:
+            break
+    print(f'    e = {e}')
+
+    d = mod_inv(e, phi_n)
+    print(f'    d = {d}')
+
+    print()
+    with open('public_key.txt', 'w') as f:
+        f.write(f'{n} {e}')
+    print(f'  Zapisano klucz publiczny ({n}, {e}) do pliku public_key.txt')
+
+    with open('private_key.txt', 'w') as f:
+        f.write(f'{p} {q} {d}')
+    print(f'  Zapisano klucz prywatny ({p}, {q}, {d}) do pliku private_key.txt')
+
+    print()
+    print('    Naciśnij enter aby powrócić do menu.', end='')
+    input()
 
 def encrypt():
-    pass
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+    print(' SZYFROWANIE '.center(64, '='))
+    print()
+
+    print('    Naciśnij enter aby powrócić do menu.', end='')
+    input()
+    
 
 def decrypt():
     os.system('cls' if os.name == 'nt' else 'clear')
-    pass
+
+    print(' DESZYFROWANIE '.center(64, '='))
+    print()
+
+    print('    Naciśnij enter aby powrócić do menu.', end='')
+    input()
 
 def compare_tests():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -224,7 +279,7 @@ def compare_tests():
     print( '      ' + '='*int(32*time_2_n/max(time_1_n, time_2_n, time_3_n)))
     print( '      ' + '='*int(32*time_3_n/max(time_1_n, time_2_n, time_3_n)))
 
-    print('\t\tNaciśnij enter aby powrócić do menu.', end='')
+    print('    Naciśnij enter aby powrócić do menu.', end='')
     input()
 
 os.system('cls' if os.name == 'nt' else 'clear')
