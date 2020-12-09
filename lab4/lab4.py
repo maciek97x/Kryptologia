@@ -4,7 +4,7 @@
 import os
 from time import perf_counter
 from random import choice, randint
-from getch import getch
+from msvcrt import getch
 from unidecode import unidecode
 
 # config
@@ -87,6 +87,14 @@ def time_func(func):
     return time_func
 
 def rand_prime(a, b):
+    """
+    Gets random prime number.
+    Parameters:
+        a (int)
+        b (int)
+    Returns:
+        prime number n (int)             
+    """
     while True:
         n = randint(a, b - 1)
         for p in (2, 3, 5, 7, 11, 13, 17, 19):
@@ -96,9 +104,28 @@ def rand_prime(a, b):
             return n
 
 def progress_bar(a, b):
+    """
+    Handles progress bar.
+    Parameters:
+        a (int)
+        b (int)
+    Returns:
+        Progress bar consisting of [,= and ]             
+    """
     return '[' + ('='*int(32*a/b)).ljust(32) + ']'
 
 def is_prime_naive(p, progress=False, prefix=''):
+    """
+    Cheks if a numer is a prime number with naive test.
+    Gives the lenght of the progress bar.
+    Parameters:
+        p (int)
+        s (int) - parameter
+        progress (bool)
+        prefix (string) 
+    Returns:
+        (bool)           
+    """
     for i in range(2, int(p**.5)):
         if progress:
             print('\r' + prefix + progress_bar(i + 1, int(p**.5) - 2), end='')
@@ -111,6 +138,17 @@ def is_prime_naive(p, progress=False, prefix=''):
     return True
 
 def is_prime_fermat(p, s, progress=False, prefix=''):
+    """
+    Cheks if a numer is a prime number with Fermat test.
+    Gives the lenght of the progress bar.
+    Parameters:
+        p (int)
+        s (int) - parameter
+        progress (bool)
+        prefix (string) 
+    Returns:
+        (bool)           
+    """
     for i in range(s):
         if progress:
             print('\r' + prefix + progress_bar(i + 1, s), end='')
@@ -124,6 +162,17 @@ def is_prime_fermat(p, s, progress=False, prefix=''):
     return True
 
 def is_prime_mr(p, s, progress=False, prefix=''):
+    """
+    Cheks if a numer is a prime number with Miller-Rabin test.
+    Gives the lenght of the progress bar.
+    Parameters:
+        p (int)
+        s (int) - parameter
+        progress (bool)
+        prefix (string) 
+    Returns:
+        (bool)           
+    """
     u = 0
     r = p - 1
     while r & 1 == 0:
@@ -149,6 +198,11 @@ def is_prime_mr(p, s, progress=False, prefix=''):
     return True
 
 def calculate_keys():
+    """
+    Handles calculations privete and public keys 
+    Saves them to file.
+    Prints messages for the user.           
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
 
     print(' OBLICZANIE KLUCZY '.center(64, '='))
@@ -213,6 +267,12 @@ def calculate_keys():
     input()
 
 def encrypt():
+    """
+    Encrypts given message.
+    Prints messages for the user.
+    Gets files names form the user   
+    Saves encrypted message to file.                       
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
 
     print(' SZYFROWANIE '.center(64, '='))
@@ -228,7 +288,13 @@ def encrypt():
             print('    Poprawnie wczytano plik')
             break
         except:
-            pass
+            try:
+                filename += '.txt'
+                plaintext = open(filename, 'r').read()
+                print('    Poprawnie wczytano plik')
+                break
+            except:
+                pass
         print('    Podaj właściwą nazwę pliku')
     
     plaintext = unidecode(plaintext)
@@ -261,7 +327,15 @@ def encrypt():
             print(f'    Poprawnie wczytano klucz publiczny ({n} {e}) z pliku {filename}.')
             break
         except:
-            pass
+            try:
+                filename += '.txt'
+                n, e = open(filename, 'r').read().split()
+                n = int(n)
+                e = int(e)
+                print(f'    Poprawnie wczytano klucz publiczny ({n} {e}) z pliku {filename}.')
+                break
+            except:
+                pass
         print('    Podaj właściwą nazwę pliku')
 
     print(f'  Uzupełnienie wiadomości, aby jej długość była wielokrotnością {CIPHER_WIDTH}...', end='')
@@ -317,6 +391,12 @@ def encrypt():
     input()
 
 def decrypt():
+    """
+    Decrypts given message.
+    Prints messages for the user.
+    Gets files names form the user   
+    Saves decrypted message to file.                       
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
 
     print(' DESZYFROWANIE '.center(64, '='))
@@ -332,7 +412,13 @@ def decrypt():
             print('    Poprawnie wczytano plik')
             break
         except:
-            pass
+            try:
+                filename += '.txt'
+                ciphertext = bytearray(open(filename, 'rb').read())
+                print('    Poprawnie wczytano plik')
+                break
+            except:
+                pass
         print('    Podaj właściwą nazwę pliku')
 
 
@@ -363,7 +449,16 @@ def decrypt():
             print(f'    Poprawnie wczytano klucz prywatny ({p} {q}, {d}) z pliku {filename}.')
             break
         except:
-            pass
+            try:
+                filename += '.txt'
+                p, q, d = open(filename, 'r').read().split()
+                p = int(p)
+                q = int(q)
+                d = int(d)
+                print(f'    Poprawnie wczytano klucz prywatny ({p} {q}, {d}) z pliku {filename}.')
+                break
+            except:
+                pass
         print('    Podaj właściwą nazwę pliku')
     
     plaintext = ''
@@ -414,6 +509,10 @@ def decrypt():
     input()
 
 def compare_tests():
+    """
+    Handles comparing tests of prime numbers.
+    Prints messages for the user.                         
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
 
     print(' PORÓWNANIE TESTÓW '.center(64, '='))
@@ -515,15 +614,18 @@ while True:
         print(f'  {" >"[opt==3]} Porównanie testów pierwszości.')
         print(f'  {" >"[opt==4]} Wyjście.')
 
-        c = getch()
+        c = ord(getch())
+        if c == 224:
+            c = ord(getch())
 
-        if ord(c) == 66:
-            opt += 1
-            opt %= 5
-        elif ord(c) == 65:
-            opt -= 1
-            opt %= 5
-        elif c == '\n':
+            if c == 80:
+                opt += 1
+                opt %= 5
+            elif c == 72:
+                opt -= 1
+                opt %= 5
+                
+        elif c == 13:
             break
 
     if opt == 0:
