@@ -28,12 +28,18 @@ def lfsr(p, seed):
 
 def rand(a, b, n, mode='lcg'):
     if mode.lower() == 'lcg':
-        gen = lcg(69069, 1, b - a, int(perf_counter()*2**31)%(b-a))
-        return [a + next(gen) for _ in range(n)]
+        gen = lcg(1103515245, 12345, 2**31, int(perf_counter()*(2**31))%(b-a))
+        ret = []
+        f = (2**31)//(b-a)
+        while len(ret) < n:
+            num = next(gen)//f
+            if num <= b - a:
+                ret.append(a + num)
+        return ret
 
     elif mode.lower() == 'lfsr':
-        gen = lfsr([1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1],
-                    [(int(perf_counter()*2**31) >> j) & 1 for j in range(11)])
+        p = [1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1]
+        gen = lfsr(p, [(int(perf_counter()*(2**31)) >> j) & 1 for j in range(len(p))])
         bits = int(log2(b - a) + 1./9)
 
         ret = []
@@ -50,6 +56,9 @@ def rand(a, b, n, mode='lcg'):
         print(f'Mode {mode} unsupported')
         return
 
+# sprawdzenie jakości geenratorów - wyświetlone liczby powinny być mniej więcej równe
+r1 = rand(100, 1000, 10000, 'lcg')
+print(np.histogram(r1)[0])
 
-print(rand(100, 10000, 20, 'lcg'))
-print(rand(100, 10000, 20, 'lfsr'))
+r2 = rand(100, 1000, 10000, 'lfsr')
+print(np.histogram(r2)[0])
