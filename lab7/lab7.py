@@ -13,6 +13,13 @@ HASH_BYTES = 4
 BLOCK_KEY = '1d5ee748'
 
 def byte_to_bits(byte):
+    """
+    Converts bytes into bits
+    Parameters:
+        byte (int)
+    Returns:
+        bits (array(int))
+    """
     return [int(b) for b in f'{byte:0b}']
 
 def progress_bar(a, b):
@@ -22,11 +29,20 @@ def progress_bar(a, b):
         a (int)
         b (int)
     Returns:
-        Progress bar consisting of [,= and ]             
+        Progress bar consisting of [,= and ]
     """
     return '[' + ('='*int(32*a/b)).ljust(32) + ']'
 
 def random_str(min_len, max_len):
+    """
+    Generate random string of lenght in given range.
+    Handles progress bar.
+    Parameters:
+        min_len (int)
+        max_len (int)
+    Returns:
+        ret (str)
+    """
     l = randint(min_len, max_len)
 
     ret = ''
@@ -37,12 +53,27 @@ def random_str(min_len, max_len):
     return ret
 
 def cmp_str(str_1, str_2):
+    """
+    Calculates percentage of matching characters in two strings.
+    Parameters:
+        min_len (int)
+        max_len (int)
+    Returns:
+        percentage (int)
+    """
     s = 0.
     for i in range(len(str_1)):
         s += int(str_1[i] == str_2[i])
     return s/len(str_1)
 
 def hash_t(text):
+    """
+    Calculates hash for goven string.
+    Parameters:
+        text (str)
+    Returns:
+        hash (str)             
+    """
     # zamiana znaków specjalnych na ascii
     text = ud(text)
 
@@ -73,6 +104,14 @@ def hash_t(text):
     return ret_hex
 
 def xor(bits_1, bits_2):
+    """
+    Exclusive or with given inputs.
+    Parameters:
+        bits_1 (array(int))
+        bits_2 (array(int))
+    Returns:
+        xor (array(int))
+    """
     ret = []
 
     for b_1, b_2 in zip(bits_1, bits_2):
@@ -81,6 +120,13 @@ def xor(bits_1, bits_2):
     return ret
 
 def block_t(text, key):
+    """
+    Calculates hash for goven string using block ciphers.
+    Parameters:
+        text (str)
+    Returns:
+        hash (str)             
+    """
     # zamiana znaków specjalnych na ascii
     text = ud(text)
 
@@ -126,7 +172,16 @@ def block_t(text, key):
     return ret_hex
 
 def hash_file(filename, mode):
-    with open(filename, 'r') as f:
+    """
+    Reads text from given file and apply hash in given mode. 	
+    Handles progress bar.
+    Parameters:
+        filename (str)
+        mode (str)
+    Returns:
+        hashed text (array(str))
+    """	
+    with io.open(filename, 'r', encoding='utf8') as f:
         texts = f.readlines()
         print(f'    Wczytano {len(texts)} linii z pliku {filename}.')
 
@@ -142,6 +197,14 @@ def hash_file(filename, mode):
     return texts_hashes
 
 def hash_text(mode):
+    """
+    Prints messages for the user.
+    Gets mode from the user.
+    Gets files names form the user.
+    Saves hashed text to file.
+    Parameters:
+        mode (str)
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
     print(' HASH '.center(64, '='))
     print()
@@ -195,6 +258,14 @@ def hash_text(mode):
         return
 
 def test_algorithms():
+    """    
+    Prints messages for the user.
+    Gets parameter from the user.
+    Test algorithms.
+    Prints results.
+    Parameters:
+        None
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
     print(' HASH '.center(64, '='))
     print()
@@ -218,7 +289,7 @@ def test_algorithms():
             print('\r    ' + progress_bar(i//2, repeats), end='')
 
             texts_hashes_1.append(hash_t(rand_texts[i]))
-        print(texts_hashes_1)
+
         time_1 = perf_counter()
         for i in range(repeats):
             print('\r    ' + progress_bar(i//2 + repeats//2, repeats), end='')
@@ -230,7 +301,7 @@ def test_algorithms():
         print('\r    ' + progress_bar(i, repeats))
 
         print(f'    Liczba wyrazów: {len(rand_texts)}')
-        print( '    Liczba otrzymaych hashy:')
+        print( '    Liczba otrzymaych hashy (różnych):')
         print(f'      zwykłą metodą:    {len(set(texts_hashes_1))}')
         print(f'      szyfrem blokowym: {len(set(texts_hashes_2))}')
         print()
@@ -270,8 +341,8 @@ def test_algorithms():
         print()
         print( '  3. Test szybkości')
         print( '    Wyniki:')
-        print(f'      zwykła metoda: {(time_1 - time_0)/repeats}')
-        print(f'      szyfr blokowy: {(time_2 - time_1)/repeats}')
+        print(f'      zwykła metoda: {1000*(time_1 - time_0)/repeats} ms')
+        print(f'      szyfr blokowy: {1000*(time_2 - time_1)/repeats} ms')
 
         print()
         print( '    Naciśnij enter aby powrócić do menu.', end='')
